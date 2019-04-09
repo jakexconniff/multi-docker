@@ -3,19 +3,17 @@ services:
   - docker
 
 before_install:
-  - docker build -t projectinflection/react-test -f ./client/Dockerfile.dev
+  - docker build -t projectinflection/react-test -f ./client/Dockerfile.dev ./client
 
-# If anything under script ends with an exit code other than 0, it fails the whole travis ci
 script:
-  # -- --coverage makes the react test package exit (it otherwise floats forever)
-  - docker run projectinflection/react-test npm test-- --coverage
+  - docker run projectinflection/react-test npm test -- --coverage
 
 after_success:
   - docker build -t projectinflection/multi-client ./client
   - docker build -t projectinflection/multi-nginx ./nginx
   - docker build -t projectinflection/multi-server ./server
   - docker build -t projectinflection/multi-worker ./worker
-  # Login to docker CLI
+  # Log in to the docker CLI
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
   # Take those images and push them to docker hub
   - docker push projectinflection/multi-client
